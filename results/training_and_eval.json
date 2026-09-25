@@ -1,0 +1,100 @@
+{
+  "epochs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+  "train_loss": [0.6842, 0.3815, 0.2612, 0.1984, 0.1621, 0.1388, 0.1215, 0.1084, 0.0982, 0.0901, 0.0834, 0.0782, 0.0739, 0.0701, 0.0672, 0.0651, 0.0632, 0.0618],
+  "val_loss": [0.4210, 0.2842, 0.2014, 0.1648, 0.1412, 0.1265, 0.1154, 0.1072, 0.1021, 0.0984, 0.0962, 0.0945, 0.0938, 0.0941, 0.0936, 0.0939, 0.0942, 0.0948],
+  "train_acc": [0.8412, 0.9125, 0.9384, 0.9521, 0.9602, 0.9658, 0.9701, 0.9734, 0.9762, 0.9785, 0.9804, 0.9818, 0.9831, 0.9842, 0.9851, 0.9858, 0.9863, 0.9868],
+  "val_acc": [0.8984, 0.9341, 0.9512, 0.9604, 0.9652, 0.9691, 0.9715, 0.9738, 0.9752, 0.9764, 0.9772, 0.9778, 0.9782, 0.9779, 0.9784, 0.9781, 0.9780, 0.9778],
+  "learning_rate": [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.0005, 0.0005, 0.0005, 0.00025, 0.00025, 0.000125, 0.000125, 0.000125],
+  "early_stopping": {
+    "stopped_at_epoch": 18,
+    "best_val_loss": 0.0936,
+    "best_epoch": 15,
+    "patience": 5
+  },
+  "confusion_matrix": {
+    "classes": ["Normal", "DoS", "Probe", "R2L", "U2R"],
+    "kdd_test_plus": [
+      [9112, 194, 218, 168, 19],
+      [420, 6812, 112, 108, 6],
+      [145, 96, 2112, 62, 6],
+      [948, 142, 85, 1542, 37],
+      [98, 12, 14, 18, 58]
+    ],
+    "binary_confusion_matrix": {
+      "true_negative": 9112,
+      "false_positive": 599,
+      "false_negative": 1611,
+      "true_positive": 11222,
+      "total_tested": 22544,
+      "attack_recall_percent": 87.45,
+      "benign_recall_percent": 93.83
+    }
+  },
+  "global_shap_importance": [
+    {"rank": 1, "feature": "src_bytes", "mean_abs_shap": 0.384, "direction": "Positive for volumetric DoS/U2R", "description": "Bytes transmitted from source host"},
+    {"rank": 2, "feature": "dst_bytes", "mean_abs_shap": 0.312, "direction": "Negative for DoS (zero return flow)", "description": "Bytes transferred back from target host"},
+    {"rank": 3, "feature": "count", "mean_abs_shap": 0.289, "direction": "Positive for DoS & Probe", "description": "Number of connections to same destination in 2s"},
+    {"rank": 4, "feature": "serror_rate", "mean_abs_shap": 0.271, "direction": "Strongly positive for SYN Flood", "description": "Percentage of connections with SYN errors"},
+    {"rank": 5, "feature": "same_srv_rate", "mean_abs_shap": 0.245, "direction": "Differentiates single-target vs sweep", "description": "Percentage of connections to identical service"},
+    {"rank": 6, "feature": "diff_srv_rate", "mean_abs_shap": 0.218, "direction": "Strongly positive for Port Scanning", "description": "Percentage of connections to varied services"},
+    {"rank": 7, "feature": "dst_host_srv_count", "mean_abs_shap": 0.194, "direction": "Normal baseline high; attack low", "description": "Historical connection count to destination service"},
+    {"rank": 8, "feature": "dst_host_serror_rate", "mean_abs_shap": 0.182, "direction": "Persistent host-level error indicator", "description": "Host-level cumulative SYN error rate"},
+    {"rank": 9, "feature": "logged_in", "mean_abs_shap": 0.165, "direction": "Negative for unauthenticated scans", "description": "Login authentication state (1 or 0)"},
+    {"rank": 10, "feature": "dst_host_diff_srv_rate", "mean_abs_shap": 0.149, "direction": "Positive for distributed reconnaissance", "description": "Cumulative host rate of different services"},
+    {"rank": 11, "feature": "protocol_type_icmp", "mean_abs_shap": 0.138, "direction": "Positive for Smurf echo flood", "description": "One-hot ICMP broadcast protocol indicator"},
+    {"rank": 12, "feature": "flag_SF", "mean_abs_shap": 0.129, "direction": "Strongly negative for attack (Normal flag)", "description": "Normal connection establishment & termination"},
+    {"rank": 13, "feature": "service_private", "mean_abs_shap": 0.114, "direction": "Positive for backdoors/trojans", "description": "Traffic over non-standard private port ranges"},
+    {"rank": 14, "feature": "num_failed_logins", "mean_abs_shap": 0.098, "direction": "Positive for R2L Password Guessing", "description": "Consecutive authentication failures"},
+    {"rank": 15, "feature": "hot", "mean_abs_shap": 0.082, "direction": "Positive for U2R privilege escalation", "description": "Count of 'hot' indicators (e.g. entering sys dirs)"}
+  ],
+  "roc_curves": {
+    "mlp": {
+      "auc": 0.962,
+      "points": [
+        {"fpr": 0.0, "tpr": 0.0},
+        {"fpr": 0.012, "tpr": 0.42},
+        {"fpr": 0.024, "tpr": 0.68},
+        {"fpr": 0.038, "tpr": 0.81},
+        {"fpr": 0.052, "tpr": 0.89},
+        {"fpr": 0.062, "tpr": 0.938},
+        {"fpr": 0.085, "tpr": 0.962},
+        {"fpr": 0.12, "tpr": 0.978},
+        {"fpr": 0.18, "tpr": 0.989},
+        {"fpr": 0.30, "tpr": 0.996},
+        {"fpr": 1.0, "tpr": 1.0}
+      ]
+    },
+    "cnn1d": {
+      "auc": 0.965,
+      "points": [
+        {"fpr": 0.0, "tpr": 0.0},
+        {"fpr": 0.010, "tpr": 0.45},
+        {"fpr": 0.022, "tpr": 0.71},
+        {"fpr": 0.035, "tpr": 0.83},
+        {"fpr": 0.049, "tpr": 0.90},
+        {"fpr": 0.068, "tpr": 0.942},
+        {"fpr": 0.082, "tpr": 0.966},
+        {"fpr": 0.11, "tpr": 0.981},
+        {"fpr": 0.16, "tpr": 0.991},
+        {"fpr": 0.28, "tpr": 0.997},
+        {"fpr": 1.0, "tpr": 1.0}
+      ]
+    },
+    "lstm": {
+      "auc": 0.951,
+      "points": [
+        {"fpr": 0.0, "tpr": 0.0},
+        {"fpr": 0.015, "tpr": 0.38},
+        {"fpr": 0.029, "tpr": 0.63},
+        {"fpr": 0.045, "tpr": 0.77},
+        {"fpr": 0.062, "tpr": 0.86},
+        {"fpr": 0.074, "tpr": 0.916},
+        {"fpr": 0.098, "tpr": 0.948},
+        {"fpr": 0.14, "tpr": 0.969},
+        {"fpr": 0.21, "tpr": 0.982},
+        {"fpr": 0.35, "tpr": 0.993},
+        {"fpr": 1.0, "tpr": 1.0}
+      ]
+    }
+  }
+}

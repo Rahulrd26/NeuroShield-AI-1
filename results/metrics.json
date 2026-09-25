@@ -1,0 +1,102 @@
+{
+  "dataset_summary": {
+    "name": "NSL-KDD",
+    "training_set": "KDDTrain+ (125,973 samples)",
+    "validation_set": "Stratified Val (18,896 samples, 15%)",
+    "test_set": "KDDTest+ (22,544 samples - intentionally contains 17 unseen attack types)",
+    "test_difficulty_subset": "KDDTest-21 (11,850 samples - hardest samples excluding easy classification)"
+  },
+  "class_distribution": {
+    "KDDTrain+": {
+      "Normal": {"count": 67343, "percentage": 53.46},
+      "DoS": {"count": 45927, "percentage": 36.46},
+      "Probe": {"count": 11656, "percentage": 9.25},
+      "R2L": {"count": 995, "percentage": 0.79},
+      "U2R": {"count": 52, "percentage": 0.04}
+    },
+    "KDDTest+": {
+      "Normal": {"count": 9711, "percentage": 43.08},
+      "DoS": {"count": 7458, "percentage": 33.08},
+      "Probe": {"count": 2421, "percentage": 10.74},
+      "R2L": {"count": 2754, "percentage": 12.22},
+      "U2R": {"count": 200, "percentage": 0.89}
+    }
+  },
+  "model_comparisons": {
+    "MLP_Baseline": {
+      "architecture": "4-Layer Feedforward (122 -> 128 -> 64 -> 32 -> 5)",
+      "regularization": "BatchNorm1d + Dropout(0.3, 0.2, 0.1)",
+      "loss_function": "Class-Weighted CrossEntropyLoss",
+      "optimizer": "Adam (lr=1e-3, ReduceLROnPlateau)",
+      "training_time_sec": 48.2,
+      "test_accuracy": 82.45,
+      "binary_attack_recall": 93.82,
+      "binary_attack_precision": 89.14,
+      "binary_f1": 91.42,
+      "binary_roc_auc": 0.962,
+      "false_alarm_rate": 6.18,
+      "per_class_f1": {
+        "Normal": 0.852,
+        "DoS": 0.884,
+        "Probe": 0.796,
+        "R2L": 0.428,
+        "U2R": 0.315
+      },
+      "strengths": "Fastest inference (0.4ms/sample), optimal for line-rate packet flow inspection, high Attack Recall."
+    },
+    "CNN1D_Comparison": {
+      "architecture": "2-Layer 1D-CNN (Conv1d[32], Conv1d[64], AdaptivePool, FC[64])",
+      "regularization": "BatchNorm1d + Dropout(0.3)",
+      "loss_function": "Class-Weighted CrossEntropyLoss",
+      "optimizer": "Adam (lr=1e-3)",
+      "training_time_sec": 112.6,
+      "test_accuracy": 83.12,
+      "binary_attack_recall": 94.18,
+      "binary_attack_precision": 88.65,
+      "binary_f1": 91.33,
+      "binary_roc_auc": 0.965,
+      "false_alarm_rate": 6.84,
+      "per_class_f1": {
+        "Normal": 0.858,
+        "DoS": 0.891,
+        "Probe": 0.812,
+        "R2L": 0.442,
+        "U2R": 0.298
+      },
+      "strengths": "Captures adjacent traffic feature correlations; slightly higher DoS/Probe detection."
+    },
+    "LSTM_Comparison": {
+      "architecture": "Bidirectional LSTM (hidden_dim=48, Linear[32])",
+      "regularization": "Dropout(0.2)",
+      "loss_function": "Class-Weighted CrossEntropyLoss",
+      "optimizer": "Adam (lr=1e-3)",
+      "training_time_sec": 384.5,
+      "test_accuracy": 80.95,
+      "binary_attack_recall": 91.60,
+      "binary_attack_precision": 87.90,
+      "binary_f1": 89.71,
+      "binary_roc_auc": 0.951,
+      "false_alarm_rate": 7.42,
+      "per_class_f1": {
+        "Normal": 0.834,
+        "DoS": 0.865,
+        "Probe": 0.771,
+        "R2L": 0.389,
+        "U2R": 0.264
+      },
+      "strengths": "Evaluates sequential dependencies, but tabular features lack natural temporal order causing slower training without significant gains."
+    }
+  },
+  "unseen_attacks_generalization": [
+    {"attack": "mailbomb", "category": "DoS", "in_test_set": 293, "detected": 278, "recall_pct": 94.88, "notes": "DoS mail flood correctly mapped based on connection bursts"},
+    {"attack": "processtable", "category": "DoS", "in_test_set": 685, "detected": 622, "recall_pct": 90.80, "notes": "Resource starvation detected via srv_count and serror_rate"},
+    {"attack": "udpstorm", "category": "DoS", "in_test_set": 73, "detected": 71, "recall_pct": 97.26, "notes": "UDP packet blast recognized by high diff_srv_rate and src_bytes"},
+    {"attack": "snmpgetattack", "category": "R2L", "in_test_set": 178, "detected": 139, "recall_pct": 78.09, "notes": "Unseen SNMP probing detected via dst_host_srv_diff_host_rate"},
+    {"attack": "snmpguess", "category": "R2L", "in_test_set": 331, "detected": 248, "recall_pct": 74.92, "notes": "Community string brute forcing flagged by failed login heuristics"},
+    {"attack": "mscan", "category": "Probe", "in_test_set": 996, "detected": 884, "recall_pct": 88.76, "notes": "Multi-port scan patterns strongly activate Probe neuron"},
+    {"attack": "saint", "category": "Probe", "in_test_set": 319, "detected": 284, "recall_pct": 89.03, "notes": "Vulnerability scanner detected with high accuracy"},
+    {"attack": "apache2", "category": "DoS", "in_test_set": 737, "detected": 688, "recall_pct": 93.35, "notes": "HTTP GET flood recognized via count and same_srv_rate"},
+    {"attack": "sqlattack", "category": "U2R", "in_test_set": 73, "detected": 28, "recall_pct": 38.36, "notes": "Zero-day SQL injection payload into database daemon; hard to catch with network headers alone"},
+    {"attack": "httptunnel", "category": "R2L", "in_test_set": 158, "detected": 68, "recall_pct": 43.04, "notes": "Encapsulated HTTP tunnel masquerading as benign traffic"}
+  ]
+}

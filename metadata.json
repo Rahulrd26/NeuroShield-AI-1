@@ -1,0 +1,6 @@
+{
+  "name": "Deep Learning Network Intrusion Detection System (NIDS)",
+  "description": "Production-grade academic mini-project for deep learning-based network intrusion detection on NSL-KDD with PyTorch MLP, FastAPI backend, SHAP explainability, and real-time interactive React security dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

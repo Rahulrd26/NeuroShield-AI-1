@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schemaVersion": "1.0.0",
+  "title": "NIDS Cloud Database Schema",
+  "description": "Persistent telemetry, user session profiles, manual network scan history, and batch intrusion audits for the Deep Learning Network Intrusion Detection System.",
+  "entities": {
+    "users": {
+      "type": "document",
+      "description": "User analyst profiles authenticated via Google Sign-In",
+      "path": "users/{userId}",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Display name of analyst" },
+        "photoURL": { "type": "string", "description": "Avatar photo URL" },
+        "role": { "type": "string", "description": "Security role e.g. analyst, secops_admin" },
+        "createdAt": { "type": "string", "description": "Creation timestamp ISO string" },
+        "lastLoginAt": { "type": "string", "description": "Last sign-in timestamp ISO string" },
+        "preferences": {
+          "type": "object",
+          "description": "User preferences for alert threshold and auto-persistence",
+          "properties": {
+            "alertThreshold": { "type": "number" },
+            "autoSaveScans": { "type": "boolean" },
+            "highRiskAlertSound": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "scans": {
+      "type": "document",
+      "description": "Individual network flow inference records and threat investigations",
+      "path": "users/{userId}/scans/{scanId}",
+      "properties": {
+        "id": { "type": "string", "description": "Unique scan ID" },
+        "userId": { "type": "string", "description": "Owner analyst UID" },
+        "timestamp": { "type": "string", "description": "ISO timestamp of prediction execution" },
+        "predicted_class": { "type": "string", "description": "Predicted traffic classification (Normal, DoS, Probe, R2L, U2R)" },
+        "is_intrusion": { "type": "boolean", "description": "True if flagged as attack" },
+        "confidence": { "type": "number", "description": "Prediction probability (0-1)" },
+        "inference_time_ms": { "type": "number", "description": "Model latency in ms" },
+        "flowData": { "type": "object", "description": "Network traffic flow feature vector" },
+        "class_probabilities": { "type": "object", "description": "Multi-class softmax distribution" },
+        "notes": { "type": "string", "description": "Analyst forensic notes" },
+        "incidentStatus": { "type": "string", "description": "Incident triage status (Unreviewed, Under Investigation, Mitigated, False Positive)" },
+        "isBookmarked": { "type": "boolean", "description": "Star indicator for high-priority incidents" }
+      },
+      "required": ["id", "userId", "predicted_class", "is_intrusion", "confidence", "timestamp"]
+    },
+    "batch_runs": {
+      "type": "document",
+      "description": "Batch traffic audit sessions and aggregate intrusion telemetry",
+      "path": "users/{userId}/batch_runs/{runId}",
+      "properties": {
+        "id": { "type": "string", "description": "Unique batch run ID" },
+        "userId": { "type": "string", "description": "Owner analyst UID" },
+        "title": { "type": "string", "description": "Title or label for the batch dataset" },
+        "timestamp": { "type": "string", "description": "Timestamp when batch executed" },
+        "total_samples": { "type": "number", "description": "Total records analyzed" },
+        "total_intrusions": { "type": "number", "description": "Total attack flows flagged" },
+        "total_normal": { "type": "number", "description": "Total normal flows" },
+        "avg_latency_ms": { "type": "number", "description": "Average inference latency per sample" },
+        "summary": { "type": "object", "description": "Summary telemetry statistics" },
+        "sample_results": { "type": "array", "description": "Summarized scan preview items" }
+      },
+      "required": ["id", "userId", "timestamp", "total_samples", "total_intrusions"]
+    }
+  }
+}
